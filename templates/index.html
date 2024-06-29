@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DocuXSearch</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Additional styles for card layout */
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            width: 300px; /* Adjust width as needed */
+            display: inline-block;
+            vertical-align: top;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .card a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .card p {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>DocuXSearch</h1>
+    <form id="search-form">
+        <label for="concept">Concept:</label>
+        <input type="text" id="concept" name="concept" required>
+        <label for="num_results">Number of Results:</label>
+        <input type="number" id="num_results" name="num_results" value="10" required>
+        <button type="submit">Search</button>
+    </form>
+    <div id="results" class="card-container"></div>
+    
+    <script>
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch('/search', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+                if (data.length > 0) {
+                    data.forEach(doc => {
+                        const card = document.createElement('div');
+                        card.classList.add('card');
+                        card.classList.add('card2');
+                        
+                        const link = document.createElement('a');
+                        link.href = doc.url;
+                        link.textContent = doc.file_name;
+                        link.target = '_blank';
+                        
+                        const relatedText = document.createElement('p');
+                        relatedText.textContent = doc.related_text;
+                        
+                        card.appendChild(link);
+                        card.appendChild(relatedText);
+                        resultsDiv.appendChild(card);
+                    });
+                } else {
+                    resultsDiv.textContent = 'No relevant documents found.';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
